@@ -1,7 +1,8 @@
+import translations from './translations.json';
 const $=s=>document.querySelector(s);
 const lang=$('#lang');
-try{lang.value=localStorage.rakoviaLanguage==='hi'?'hi':'en'}catch{}
-const t=(english,hindi)=>lang.value==='hi'?hindi:english;
+try { const saved = localStorage.rakoviaLanguage; if ([...lang.options].some(option => option.value === saved)) lang.value = saved; } catch {}
+const t=(english,hindi)=>lang.value === 'hi' ? hindi : translations[lang.value]?.[english] ?? english;
 const names=()=>[t('Spices','मसाले'),t('Moringa powder','सहजन पाउडर'),t('Makhana (fox nuts)','मखाना'),t('Green chilli','हरी मिर्च'),t('Drumstick','सहजन की फली'),t('Ginger','अदरक'),t('Coconut','नारियल'),t('Paper cups','पेपर कप'),t('Paper bowls','पेपर बाउल'),t('Soup containers','सूप कंटेनर'),t('Paper bags','पेपर बैग'),t('Wooden stirrers','लकड़ी के स्टिरर'),t('Paper straws','पेपर स्ट्रॉ'),t('Food containers','खाद्य कंटेनर')];
 const codes=['spices','moringa','makhana','green-chilli','drumstick','ginger','coconut','paper-cups','paper-bowls','soup-containers','paper-bags','wooden-stirrers','paper-straws','food-containers'];
 function form(quote){
@@ -9,7 +10,11 @@ const field=(name,label,max,required=true,type='text')=>'<label>'+label+'<input 
 return '<form data-kind="'+(quote?'quote':'contact')+'"><h3>'+ (quote?t('Tell us what you need','अपनी ज़रूरत बताएं'):t('Send an enquiry','संदेश भेजें'))+'</h3><div class="fields">'+field('name',t('Your name','आपका नाम'),120)+field('email',t('Email address','ईमेल पता'),254,true,'email')+field('company',t('Company (optional)','कंपनी (वैकल्पिक)'),160,false)+(quote?field('destination',t('Destination country','गंतव्य देश'),120)+'<label>'+t('Product','उत्पाद')+'<select name="product" required><option value="">'+t('Select a product','उत्पाद चुनें')+'</option>'+names().map((n,i)=>'<option value="'+codes[i]+'">'+n+'</option>').join('')+'</select></label>'+field('quantity',t('Quantity and unit','मात्रा और इकाई'),100):'')+'<label class="wide">'+t('Message','संदेश')+'<textarea name="message" maxlength="4000" rows="3" required></textarea></label></div><button class="submit">'+(quote?t('Request a quote','कोटेशन मांगें'):t('Send enquiry','संदेश भेजें'))+' ↗</button><p role="status" aria-live="polite"></p></form>'
 }
 function render(){
-document.documentElement.lang=lang.value;
+document.documentElement.lang = lang.value;
+document.documentElement.dir = lang.value === 'ar' ? 'rtl' : 'ltr';
+lang.setAttribute('aria-label', t('Language','भाषा'));
+$('#menu').setAttribute('aria-label', t('Menu','मेन्यू'));
+$('footer span').textContent = t('Bangalore, Karnataka, India','बेंगलुरु, कर्नाटक, भारत');
 const nav=[['home',t('Home','होम')],['about',t('About Us','हमारे बारे में')],['products',t('Products','उत्पाद')],['quality',t('Quality','गुणवत्ता')],['gallery',t('Gallery','गैलरी')],['contact',t('Contact','संपर्क')],['quote',t('Request a Quote','कोटेशन मांगें')]];
 $('#nav').innerHTML=nav.map(([id,n])=>'<a href="#'+id+'" '+(id==='quote'?'class="cta"':'')+'>'+n+(id==='quote'?' ↗':'')+'</a>').join('');
 const products=names();
